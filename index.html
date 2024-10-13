@@ -124,26 +124,37 @@
         <ul id="messages"></ul>
     </div>
     <script>
+        const token = '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';
+
         document.getElementById("messageForm").addEventListener("submit", async function(event) {
             event.preventDefault();
 
             const name = document.getElementById("name").value;
             const message = document.getElementById("message").value;
 
-            await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues', {
+            const response = await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues', {
                 method: 'POST',
                 headers: {
-                    'Authorization': 'token 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',
+                    'Authorization': `token ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ title: message, body: `留言者: ${name}` })
+                body: JSON.stringify({
+                    title: message,
+                    body: `留言者: ${name}`,
+                    labels: ['message']
+                })
             });
 
-            document.getElementById("name").value = '';
-            document.getElementById("message").value = '';
+            if (response.ok) {
+                document.getElementById("name").value = '';
+                document.getElementById("message").value = '';
 
-            loadMessages();
+                loadMessages();
+            } else {
+                console.error('留言提交失败', await response.text());
+            }
         });
+
         async function loadMessages() {
             const response = await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues');
             const issues = await response.json();
@@ -151,13 +162,14 @@
             messageList.innerHTML = '';
 
             issues.forEach(issue => {
-                const li = document.createElement("li");
-                li.className = "message";
-                li.textContent = `${issue.user.login}: ${issue.title}`;
-                messageList.appendChild(li);
+                if(issue.labels.some(label => label.name === 'message')) {
+                    const li = document.createElement("li");
+                    li.className = "message";
+                    li.textContent = `${issue.user.login}: ${issue.title}`;
+                    messageList.appendChild(li);
+                }
             });
         }
-
         window.onload = loadMessages;
     </script>
 </body>
