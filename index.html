@@ -69,32 +69,6 @@
             padding: 10px 0;
         }
     </style>
-    <script>
-        function copyToClipboard(text) {
-            var tempInput = document.createElement("input");
-            tempInput.style.position = "absolute";
-            tempInput.style.left = "-9999px";
-            document.body.appendChild(tempInput);
-            tempInput.value = text;
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-            alert(text + " 已复制到剪贴板！");
-        }
-
-        function copyAndRedirect(text, url) {
-            copyToClipboard(text);
-            window.location.href = url;  // 跳转到指定页面
-        }
-
-        function copyQQ() {
-            copyAndRedirect("2444657272", "tencent://message/?uin=2444657272"); // 复制QQ号并跳转
-        }
-
-        function copyWeChat() {
-            copyAndRedirect("wxid493197", "weixin://dl/chat?wxid493197"); // 复制微信号并跳转
-        }
-    </script>
 </head>
 <body>
     <div class="container">
@@ -123,64 +97,78 @@
         </form>
         <ul id="messages"></ul>
     </div>
-   <script>
-        const token = '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';
 
+    <script>
+        function copyToClipboard(text) {
+            var tempInput = document.createElement("input");
+            tempInput.style.position = "absolute";
+            tempInput.style.left = "-9999px";
+            document.body.appendChild(tempInput);
+            tempInput.value = text;
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert(text + " 已复制到剪贴板！");
+        }
+
+        function copyAndRedirect(text, url) {
+            copyToClipboard(text);
+            window.location.href = url;  // 跳转到指定页面
+        }
+
+        function copyQQ() {
+            copyAndRedirect("2444657272", "tencent://message/?uin=2444657272"); // 复制QQ号并跳转
+        }
+
+        function copyWeChat() {
+            copyAndRedirect("wxid493197", "weixin://dl/chat?wxid493197"); // 复制微信号并跳转
+        }
+        
         document.getElementById("messageForm").addEventListener("submit", async function(event) {
             event.preventDefault();
 
             const name = document.getElementById("name").value;
             const message = document.getElementById("message").value;
 
-            try {
-                const response = await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        title: message,
-                        body: `留言者: ${name}`,
-                        labels: ['message']
-                    })
-                });
+            await fetch('https://api.github.com/repos/Dihuwwy/personalpages/dispatches', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'token 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',
+                    'Accept': 'application/vnd.github.everest-preview+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    event_type: 'submit_message',
+                    client_payload: {
+                        name: name,
+                        message: message
+                    }
+                })
+            });
 
-                if (response.ok) {
-                    document.getElementById("name").value = '';
-                    document.getElementById("message").value = '';
+            document.getElementById("name").value = '';
+            document.getElementById("message").value = '';
 
-                    loadMessages();
-                } else {
-                    const errorResponse = await response.json();
-                    console.error('留言提交失败', errorResponse);
-                }
-            } catch (error) {
-                console.error('网络错误', error);
-            }
+            loadMessages();
         });
 
         async function loadMessages() {
-            try {
-                const response = await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues');
-                const issues = await response.json();
-                const messageList = document.getElementById("messages");
-                messageList.innerHTML = '';
+            const response = await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues');
+            const issues = await response.json();
+            const messageList = document.getElementById("messages");
+            messageList.innerHTML = '';
 
-                issues.forEach(issue => {
-                    if (issue.labels.some(label => label.name === 'message')) {
-                        const li = document.createElement("li");
-                        li.className = "message";
-                        li.textContent = `${issue.user.login}: ${issue.title}`;
-                        messageList.appendChild(li);
-                    }
-                });
-            } catch (error) {
-                console.error('加载留言失败', error);
-            }
+            issues.forEach(issue => {
+                if(issue.labels.some(label => label.name === 'message')) {
+                    const li = document.createElement("li");
+                    li.className = "message";
+                    li.textContent = `${issue.user.login}: ${issue.title}`;
+                    messageList.appendChild(li);
+                }
+            });
         }
 
         window.onload = loadMessages;
-   </script>
+    </script>
 </body>
 </html>
