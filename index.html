@@ -106,6 +106,30 @@
         });
 
         window.onload = fetchMessages;
+        function copyToClipboard(text) {
+            var tempInput = document.createElement("input");
+            tempInput.style.position = "absolute";
+            tempInput.style.left = "-9999px";
+            document.body.appendChild(tempInput);
+            tempInput.value = text;
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert(text + " 已复制到剪贴板！");
+        }
+
+        function copyAndRedirect(text, url) {
+            copyToClipboard(text);
+            window.location.href = url;  // 跳转到指定页面
+        }
+
+        function copyQQ() {
+            copyAndRedirect("2444657272", "tencent://message/?uin=2444657272"); // 复制QQ号并跳转
+        }
+
+        function copyWeChat() {
+            copyAndRedirect("wxid493197", "weixin://dl/chat?wxid493197"); // 复制微信号并跳转
+        }
     </script>
 </head>
 <body>
