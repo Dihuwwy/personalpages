@@ -1,16 +1,22 @@
-name: Fetch Issues
+name: Submit Messages
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+  repository_dispatch:
+    types: [submit_message]
 
 jobs:
-  build:
+  create_issue:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Fetch Issues
+      - name: Create GitHub Issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
-          curl -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" https://api.github.com/repos/Dihuwwy/personalpages/issues
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues \
+            -d '{"title": "'"${{ github.event.client_payload.message }}"'", "body": "留言者: '"${{ github.event.client_payload.name }}"'", "labels": ["message"]}'
