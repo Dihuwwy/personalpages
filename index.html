@@ -70,42 +70,6 @@
         }
     </style>
     <script>
-        async function fetchMessages() {
-            const response = await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues');
-            const issues = await response.json();
-            const messageList = document.getElementById("messages");
-            messageList.innerHTML = '';
-
-            issues.forEach(issue => {
-                const li = document.createElement("li");
-                li.className = "message";
-                li.textContent = `${issue.user.login}: ${issue.title}`;
-                messageList.appendChild(li);
-            });
-        }
-
-        document.getElementById("messageForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
-
-            const name = document.getElementById("name").value;
-            const message = document.getElementById("message").value;
-
-            await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues', {
-                method: 'POST',
-                headers: {
-                    'Authorization': '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',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ title: message, body: `留言者: ${name}` })
-            });
-
-            document.getElementById("name").value = '';
-            document.getElementById("message").value = '';
-
-            fetchMessages();
-        });
-
-        window.onload = fetchMessages;
         function copyToClipboard(text) {
             var tempInput = document.createElement("input");
             tempInput.style.position = "absolute";
@@ -159,5 +123,42 @@
         </form>
         <ul id="messages"></ul>
     </div>
+    <script>
+        document.getElementById("messageForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const message = document.getElementById("message").value;
+
+            await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'token YOUR_GITHUB_TOKEN',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title: message, body: `留言者: ${name}` })
+            });
+
+            document.getElementById("name").value = '';
+            document.getElementById("message").value = '';
+
+            loadMessages();
+        });
+        async function loadMessages() {
+            const response = await fetch('https://api.github.com/repos/Dihuwwy/personalpages/issues');
+            const issues = await response.json();
+            const messageList = document.getElementById("messages");
+            messageList.innerHTML = '';
+
+            issues.forEach(issue => {
+                const li = document.createElement("li");
+                li.className = "message";
+                li.textContent = `${issue.user.login}: ${issue.title}`;
+                messageList.appendChild(li);
+            });
+        }
+
+        window.onload = loadMessages;
+    </script>
 </body>
 </html>
