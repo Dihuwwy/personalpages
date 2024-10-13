@@ -105,9 +105,7 @@
             const name = document.getElementById("name").value;
             const message = document.getElementById("message").value;
 
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('message', message);
+            const formData = new FormData(event.target);
 
             fetch(event.target.action, {
                 method: event.target.method,
@@ -137,6 +135,7 @@
             li.textContent = `${name}: ${message}`;
             messageList.appendChild(li);
         }
+        
         function copyToClipboard(text) {
             var tempInput = document.createElement("input");
             tempInput.style.position = "absolute";
